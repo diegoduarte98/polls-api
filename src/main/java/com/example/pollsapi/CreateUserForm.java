@@ -1,8 +1,14 @@
 package com.example.pollsapi;
 
+import javax.swing.text.html.Option;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.LongConsumer;
 
 public class CreateUserForm {
 
@@ -24,8 +30,11 @@ public class CreateUserForm {
     @Size(max = 8)
     private String password;
 
-    public User toModel() {
-        return new User(name, username, password, email);
+    private Long roleId;
+
+    public User toModel(Function<Long, Optional<Role>> finder) {
+        Role role = finder.apply(roleId).orElseThrow(NotFoundException::new);
+        return new User(name, username, password, email, Collections.singleton(role));
     }
 
     public String getName() {
@@ -42,5 +51,9 @@ public class CreateUserForm {
 
     public String getPassword() {
         return password;
+    }
+
+    public Long getRoleId() {
+        return roleId;
     }
 }
