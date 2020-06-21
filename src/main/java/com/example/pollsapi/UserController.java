@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,8 +26,10 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@RequestBody @Valid CreateUserForm form) {
-        User user = userRepository.save(form.toModel(roleRepository::findById));
-        return new UserDto(user);
+        Function<Long, Optional<Role>> findById = roleRepository::findById;
+        User user = form.toModel(findById);
+        User userSaved = userRepository.save(user);
+        return new UserDto(userSaved);
     }
 
     @PutMapping("{id}")

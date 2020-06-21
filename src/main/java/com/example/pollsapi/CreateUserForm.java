@@ -1,14 +1,13 @@
 package com.example.pollsapi;
 
-import javax.swing.text.html.Option;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.function.LongConsumer;
 
 public class CreateUserForm {
 
@@ -33,8 +32,13 @@ public class CreateUserForm {
     private Long roleId;
 
     public User toModel(Function<Long, Optional<Role>> finder) {
-        Role role = finder.apply(roleId).orElseThrow(NotFoundException::new);
-        return new User(name, username, password, email, Collections.singleton(role));
+        Role role = finder.apply(this.roleId).orElseThrow(NotFoundException::new);
+        return new User(
+                this.name,
+                this.username,
+                new BCryptPasswordEncoder().encode(this.password),
+                this.email,
+                Collections.singleton(role));
     }
 
     public String getName() {
